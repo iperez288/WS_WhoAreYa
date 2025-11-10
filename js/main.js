@@ -1,5 +1,6 @@
 import { folder, leftArrow } from "./fragments.js";
 import { fetchJSON } from "./loaders.js";
+import { setupRows } from "./rows.js";
 
 function differenceInDays(date1) {
   const MS_PER_DAY = 1000 * 60 * 60 * 24;
@@ -50,6 +51,19 @@ Promise.all([fetchJSON("fullplayers25"), fetchJSON("solution25")]).then(
     console.log(game.solution);
 
     document.getElementById("mistery").src = `https://playfootball.games/media/players/${game.solution.id % 32}/${game.solution.id}.png`;
-  
+    
+    const addRow = setupRows(game);
+
+    // Input elementua lortu
+    const myInput = document.getElementById("myInput");
+
+    // Enter sakatzean addRow deitzea
+    myInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        const playerId = Number(myInput.value); // sartutako ID zenbakia
+        addRow(playerId);
+        myInput.value = ''; // input garbitu
+      }
+    });
   }
 );
