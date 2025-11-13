@@ -1,6 +1,7 @@
 import { folder, leftArrow } from "./fragments.js";
 import { fetchJSON } from "./loaders.js";
 import { setupRows } from "./rows.js";
+import { autocomplete } from "./autocomplete.js";
 
 function differenceInDays(date1) {
   const MS_PER_DAY = 1000 * 60 * 60 * 24;
@@ -55,13 +56,22 @@ Promise.all([fetchJSON("fullplayers25"), fetchJSON("solution25")]).then(
     const addRow = setupRows(game);
 
     // Input elementua lortu
-    const myInput = document.getElementById("myInput");
+    //const myInput = document.getElementById("myInput");
+
+    //horren ordez, autocomplete funtzioari deituko diogu
+    autocomplete(document.getElementById("myInput"), game)
 
     // Enter sakatzean addRow deitzea
     myInput.addEventListener("keydown", (event) => {
       if (event.key === "Enter") {
-        const playerId = Number(myInput.value); // sartutako ID zenbakia
-        addRow(playerId);
+
+        //ORAIN enter sakatzean inputa id bilakatzen du eta addRow(id) deitzen du.
+        const selectedPlayer = game.players.find(p => {
+          return p.name.toLowerCase() === myInput.value.toLowerCase()
+        })
+
+        addRow(selectedPlayer.id)
+
         myInput.value = ''; // input garbitu
       }
     });

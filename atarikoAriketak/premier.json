@@ -14,7 +14,7 @@
     "id": 2403,
     "startDate": "2025-08-15",
     "endDate": "2026-05-24",
-    "currentMatchday": 11,
+    "currentMatchday": 12,
     "winner": null
   },
   "teams": [
@@ -2410,6 +2410,15 @@
           "position": "Defence"
         },
         {
+          "id": 271941,
+          "name": "Jack Fletcher",
+          "birthDate": "2007-03-19",
+          "nationality": "England",
+          "teamId": 66,
+          "leagueId": 2021,
+          "position": "MF"
+        },
+        {
           "id": 275522,
           "name": "Chido Obi-Martin",
           "birthDate": "2007-11-29",
@@ -3735,15 +3744,15 @@
         }
       ],
       "coach": {
-        "id": null,
-        "firstName": null,
-        "lastName": null,
-        "name": null,
-        "dateOfBirth": null,
-        "nationality": null,
+        "id": 289223,
+        "firstName": "James",
+        "lastName": "Collins",
+        "name": "James Collins",
+        "dateOfBirth": "1978-05-28",
+        "nationality": "England",
         "contract": {
-          "start": null,
-          "until": null
+          "start": "2025-11",
+          "until": "2025-12"
         }
       },
       "squad": [
@@ -6056,6 +6065,15 @@
           "name": "Ezra Mayers",
           "birthDate": "2007-01-16",
           "nationality": "England",
+          "teamId": 563,
+          "leagueId": 2021,
+          "position": "Defence"
+        },
+        {
+          "id": 289166,
+          "name": "Airidas Golambeckis",
+          "birthDate": "2007-11-04",
+          "nationality": "Lithuania",
           "teamId": 563,
           "leagueId": 2021,
           "position": "Defence"

@@ -5,6 +5,7 @@
 const delay = 350;
 const attribs = ['nationality', 'leagueId', 'teamId', 'position', 'birthdate']
 import { stringToHTML } from "./fragments.js";
+import { higher, lower } from "./fragments.js"
 
 
 let setupRows = function (game) {
@@ -63,12 +64,24 @@ let setupRows = function (game) {
 
 
     function setContent(guess) {
-        return [
-            `<img src="https://playfootball.games/media/nations/${guess.nationality.toLowerCase()}.svg" alt="" style="width: 60%;">`,
-            `<img src="https://playfootball.games/media/competitions/${leagueToFlag(guess.leagueId)}.png" alt="" style="width: 60%;">`,
-            `<img src="https://cdn.sportmonks.com/images/soccer/teams/${guess.teamId % 32}/${guess.teamId}.png" alt="" style="width: 60%;">`,
-            `${guess.position}`,
-            `${getAge(guess.birthdate)}`
+
+      const ageCheck = check("birthdate", guess.birthdate);
+
+      // Por defecto mostramos solo el número
+      let ageDisplay = `${getAge(guess.birthdate)}`;
+      
+      if (ageCheck === "lower") {
+        ageDisplay += ` ${higher}`
+      } else if (ageCheck === "higher") {
+        ageDisplay += ` ${lower}`
+      }
+
+      return [
+          `<img src="https://playfootball.games/media/nations/${guess.nationality.toLowerCase()}.svg" alt="" style="width: 60%;">`,
+          `<img src="https://playfootball.games/media/competitions/${leagueToFlag(guess.leagueId)}.png" alt="" style="width: 60%;">`,
+          `<img src="https://cdn.sportmonks.com/images/soccer/teams/${guess.teamId % 32}/${guess.teamId}.png" alt="" style="width: 60%;">`,
+          `${guess.position}`,
+          `${ageDisplay}`
         ]
     }
 
