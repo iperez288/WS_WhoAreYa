@@ -39,9 +39,7 @@ function autocomplete(inp, game) {
                 let startIndex = players[i].name.toUpperCase().indexOf(val.toUpperCase());
                 let endIndex = startIndex + val.length;
                 b.innerHTML += `<div class='self-center'>
-                                    <span>${players[i].name.substr(0, startIndex)}</span>
-                                    <span class='font-bold'>${players[i].name.substr(startIndex, val.length)}</span>
-                                    <span class>${players[i].name.substr(endIndex)}</span>
+                                    <span>${players[i].name.substr(0, startIndex)}</span><span class='font-bold'>${players[i].name.substr(startIndex, val.length)}</span><span class>${players[i].name.substr(endIndex)}</span>
                                     <input type='hidden' name='name' value='${players[i].name}'>
                                     <input type='hidden' name='id' value='${players[i].id}'>
                                 </div>`;
