@@ -5,6 +5,9 @@
 
 import { initState } from "./stats.js";
 import { stats } from "./fragments.js";
+import { updateStats } from "./stats.js";
+import { toggle } from "./fragments.js";
+import { headless } from "./fragments.js";
 
 const delay = 350;
 const attribs = ['nationality', 'leagueId', 'teamId', 'position', 'birthdate']
