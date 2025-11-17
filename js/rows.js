@@ -208,15 +208,29 @@ let setupRows = function (game) {
                 gameOver();
             }
          }
-        let interval = const remaining = () => {
-  const endDate = "2021-02-26T00:00:00.000Z";
-  const now = new Date();
-  const end = new Date(endDate);
-  return intervalToDuration({
-    start: now,
-    end: end
-  });
-};
+        let interval = setInterval(() => {
+            const nextPlayerDiv = document.getElementById("nextPlayer");
+            if (!nextPlayerDiv) return;
+        
+            const now = new Date();
+            const tomorrow = new Date();
+            tomorrow.setHours(24, 0, 0, 0);   
+
+            const diff = tomorrow - now;
+
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff / (1000 * 60)) % 60);
+            const seconds = Math.floor((diff / 1000) % 60);
+
+    
+            nextPlayerDiv.textContent =`${hours}h ${minutes}m ${seconds}s`;
+
+    
+            if (diff <= 0) {
+                clearInterval(interval);
+            }
+
+            }, 1000);
 
 
         showContent(content, guess)
