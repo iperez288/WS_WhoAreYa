@@ -62,7 +62,7 @@ function updateStats(t){
         gamestats.currentStreak = 0;
         gamestats.gamesFailed++;
     }
-    totalWins = gamestats.winDistributions.reduce((acc, win) => acc + win, 0);
+    const totalWins = gamestats.winDistributions.reduce((acc, win) => acc + win, 0);
     gamestats.successRate = Math.round((totalWins / gamestats.totalGames) * 100);
 
     localStorage.setItem(gamestats, JSON.stringify(gamestats));
