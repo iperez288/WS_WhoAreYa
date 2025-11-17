@@ -22,6 +22,7 @@ V3a1 1 0 012 0v11.586l2.293-2.293a1 1 0 011.414 0z" clip-rule="evenodd
 export { stats }
 export { toggle }
 export { headless }
+import { getStats } from "./stats.js";
 
 let toggle = function(){
         if (document.getElementById("showHide").nextSibling.firstChild.style.display == 'none') {
