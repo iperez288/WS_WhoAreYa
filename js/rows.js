@@ -74,7 +74,8 @@ let setupRows = function (game) {
         return new Promise( (resolve, reject) =>  {
             setTimeout(() => {
                 document.getElementById("mistery").classList.remove("hue-rotate-180", "blur")
-                document.getElementById("combobox").remove()
+                const combo = document.getElementById("combobox");
+                if (combo) combo.remove();
                 let color, text
                 if (outcome=='success'){
                     color =  "bg-blue-500"
@@ -100,6 +101,12 @@ let setupRows = function (game) {
         })
     }
 
+     function bindClose() {
+        document.getElementById("closedialog").onclick = function () {
+            document.body.removeChild(document.body.lastChild)
+            document.getElementById("mistery").classList.remove("hue-rotate-180", "blur")
+        }
+    }
 
     function setContent(guess) {
 
@@ -176,12 +183,19 @@ let setupRows = function (game) {
         }
         return false;
     }
-    function success(){
+
+    let gameFinished = false; // global dentro de setupRows
+
+    function success() {
+        if (gameFinished) return;
+        gameFinished = true;
         unblur('success');
         showStats();
     }
 
-    function gameOver(){
+    function gameOver() {
+        if (gameFinished) return;
+        gameFinished = true;
         unblur('gameover');
         showStats();
     }

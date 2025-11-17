@@ -37,7 +37,7 @@ let getStats = function(what) {
     else{
         const hasStats =
         {
-        winDistributions: [0,0,0,0,0,0,0,0],
+        winDistributions: [0,0,0,0,0,0,0],
         gamesFailed: 0,
         currentStreak: 0,
         bestStreak: 0,
@@ -55,8 +55,9 @@ let getStats = function(what) {
 
 function updateStats(t){
     gamestats.totalGames++;
-    if (t < 8){
-        gamestats.winDistributions[t - 1]++;
+
+    if (t <= 8){
+        gamestats.winDistributions[t]++;
         gamestats.currentStreak++;
         if (gamestats.currentStreak > gamestats.bestStreak) {
             gamestats.bestStreak = gamestats.currentStreak;
