@@ -68,7 +68,7 @@ function updateStats(t){
     }
     successRate(gamestats);
 
-    localStorage.setItem(gamestats, JSON.stringify(gamestats));
+    localStorage.setItem('gameStats', JSON.stringify(gamestats));
 
     return gamestats;
 };
