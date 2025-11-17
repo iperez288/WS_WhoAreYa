@@ -4,6 +4,10 @@
 // .... initState ....
 
 import { initState } from "./stats.js";
+import { stats } from "./fragments.js";
+import { updateStats } from "./stats.js";
+import { toggle } from "./fragments.js";
+import { headless } from "./fragments.js";
 
 const delay = 350;
 const attribs = ['nationality', 'leagueId', 'teamId', 'position', 'birthdate']
@@ -84,6 +88,17 @@ let setupRows = function (game) {
             }, "2000")
         })
     }
+    
+    function showStats(timeout) {
+        return new Promise( (resolve, reject) =>  {
+            setTimeout(() => {
+                document.body.appendChild(stringToHTML(headless(stats())));
+                document.getElementById("showHide").onclick = toggle;
+                bindClose();
+                resolve();
+            }, timeout)
+        })
+    }
 
 
     function setContent(guess) {
@@ -161,12 +176,14 @@ let setupRows = function (game) {
         }
         return false;
     }
-        function success(){
+    function success(){
         unblur('success');
+        showStats();
     }
 
     function gameOver(){
         unblur('gameover');
+        showStats();
     }
 
     resetInput();
@@ -183,6 +200,7 @@ let setupRows = function (game) {
         resetInput();
 
         if (gameEnded(playerId)) {
+            updateStats(game.guesses.length);
             if (playerId == game.solution.id) {
                 success();
             }
@@ -190,6 +208,29 @@ let setupRows = function (game) {
                 gameOver();
             }
          }
+        let interval = setInterval(() => {
+            const nextPlayerDiv = document.getElementById("nextPlayer");
+            if (!nextPlayerDiv) return;
+        
+            const now = new Date();
+            const tomorrow = new Date();
+            tomorrow.setHours(24, 0, 0, 0);   
+
+            const diff = tomorrow - now;
+
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff / (1000 * 60)) % 60);
+            const seconds = Math.floor((diff / 1000) % 60);
+
+    
+            nextPlayerDiv.textContent =`${hours}h ${minutes}m ${seconds}s`;
+
+    
+            if (diff <= 0) {
+                clearInterval(interval);
+            }
+
+            }, 1000);
 
 
         showContent(content, guess)
