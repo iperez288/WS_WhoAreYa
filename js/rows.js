@@ -4,6 +4,7 @@
 // .... initState ....
 
 import { initState } from "./stats.js";
+import { stats } from "./fragments.js";
 
 const delay = 350;
 const attribs = ['nationality', 'leagueId', 'teamId', 'position', 'birthdate']
@@ -84,6 +85,17 @@ let setupRows = function (game) {
             }, "2000")
         })
     }
+    
+    function showStats(timeout) {
+        return new Promise( (resolve, reject) =>  {
+            setTimeout(() => {
+                document.body.appendChild(stringToHTML(headless(stats())));
+                document.getElementById("showHide").onclick = toggle;
+                bindClose();
+                resolve();
+            }, timeout)
+        })
+    }
 
 
     function setContent(guess) {
@@ -161,12 +173,14 @@ let setupRows = function (game) {
         }
         return false;
     }
-        function success(){
+    function success(){
         unblur('success');
+        showStats();
     }
 
     function gameOver(){
         unblur('gameover');
+        showStats();
     }
 
     resetInput();
@@ -183,6 +197,7 @@ let setupRows = function (game) {
         resetInput();
 
         if (gameEnded(playerId)) {
+            updateStats(game.guesses.length);
             if (playerId == game.solution.id) {
                 success();
             }
@@ -190,6 +205,15 @@ let setupRows = function (game) {
                 gameOver();
             }
          }
+        let interval = const remaining = () => {
+  const endDate = "2021-02-26T00:00:00.000Z";
+  const now = new Date();
+  const end = new Date(endDate);
+  return intervalToDuration({
+    start: now,
+    end: end
+  });
+};
 
 
         showContent(content, guess)
