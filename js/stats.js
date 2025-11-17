@@ -1,5 +1,6 @@
 export {initState}
 export { updateStats }
+export {getStats}
 
 let initState = function(what, solutionId) { 
     const berreskid = localStorage.getItem(what)
