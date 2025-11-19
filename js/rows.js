@@ -4,6 +4,10 @@
 // .... initState ....
 
 import { initState } from "./stats.js";
+import { stats } from "./fragments.js";
+import { updateStats } from "./stats.js";
+import { toggle } from "./fragments.js";
+import { headless } from "./fragments.js";
 
 const delay = 350;
 const attribs = ['nationality', 'leagueId', 'teamId', 'position', 'birthdate']
@@ -70,7 +74,8 @@ let setupRows = function (game) {
         return new Promise( (resolve, reject) =>  {
             setTimeout(() => {
                 document.getElementById("mistery").classList.remove("hue-rotate-180", "blur")
-                document.getElementById("combobox").remove()
+                const combo = document.getElementById("combobox");
+                if (combo) combo.remove();
                 let color, text
                 if (outcome=='success'){
                     color =  "bg-blue-500"
@@ -84,7 +89,24 @@ let setupRows = function (game) {
             }, "2000")
         })
     }
+    
+    function showStats(timeout) {
+        return new Promise( (resolve, reject) =>  {
+            setTimeout(() => {
+                document.body.appendChild(stringToHTML(headless(stats())));
+                document.getElementById("showHide").onclick = toggle;
+                bindClose();
+                resolve();
+            }, timeout)
+        })
+    }
 
+     function bindClose() {
+        document.getElementById("closedialog").onclick = function () {
+            document.body.removeChild(document.body.lastChild)
+            document.getElementById("mistery").classList.remove("hue-rotate-180", "blur")
+        }
+    }
 
     function setContent(guess) {
 
@@ -161,12 +183,21 @@ let setupRows = function (game) {
         }
         return false;
     }
-        function success(){
+
+    let gameFinished = false; // global dentro de setupRows
+
+    function success() {
+        if (gameFinished) return;
+        gameFinished = true;
         unblur('success');
+        showStats();
     }
 
-    function gameOver(){
+    function gameOver() {
+        if (gameFinished) return;
+        gameFinished = true;
         unblur('gameover');
+        showStats();
     }
 
     resetInput();
@@ -182,18 +213,44 @@ let setupRows = function (game) {
 
         resetInput();
 
-        if (gameEnded(playerId)) {
-            if (playerId == game.solution.id) {
-                success();
-            }
-            if (game.guesses.length == 8) {
-                gameOver();
-            }
-         }
+       if (playerId == game.solution.id) {
+        updateStats(game.guesses.length); // 1–8
+        success();
+        } 
+        else if (game.guesses.length === 8) {
+            updateStats(9); // fallo
+            gameOver();
+        }
+
+
+    let interval = setInterval(() => {
+        const nextPlayerDiv = document.getElementById("nextPlayer");
+        if (!nextPlayerDiv) return;
+        
+        const now = new Date();
+        const tomorrow = new Date();
+        tomorrow.setHours(24, 0, 0, 0);   
+
+        const diff = tomorrow - now;
+
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff / (1000 * 60)) % 60);
+        const seconds = Math.floor((diff / 1000) % 60);
+
+    
+        nextPlayerDiv.textContent =`${hours}h ${minutes}m ${seconds}s`;
+
+    
+        if (diff <= 0) {
+            clearInterval(interval);
+        }
+
+        }, 1000);
 
 
         showContent(content, guess)
     }
 }
+
 
 export {setupRows}
