@@ -1,13 +1,6 @@
 // YOUR CODE HERE :  
 // .... stringToHTML ....
 // .... setupRows .....
-// .... initState ....
-
-import { initState } from "./stats.js";
-import { stats } from "./fragments.js";
-import { updateStats } from "./stats.js";
-import { toggle } from "./fragments.js";
-import { headless } from "./fragments.js";
 
 const delay = 350;
 const attribs = ['nationality', 'leagueId', 'teamId', 'position', 'birthdate']
@@ -17,8 +10,7 @@ import { higher, lower } from "./fragments.js"
 
 let setupRows = function (game) {
 
-    let [state, updateState] = initState('WAYgameState', game.solution.id);
-    
+
     function leagueToFlag(leagueId) {
       const leagueMap = {
         564: "es1",
@@ -70,43 +62,6 @@ let setupRows = function (game) {
       return "incorrect";
     };
 
-    function unblur(outcome) {
-        return new Promise( (resolve, reject) =>  {
-            setTimeout(() => {
-                document.getElementById("mistery").classList.remove("hue-rotate-180", "blur")
-                const combo = document.getElementById("combobox");
-                if (combo) combo.remove();
-                let color, text
-                if (outcome=='success'){
-                    color =  "bg-blue-500"
-                    text = "Awesome"
-                } else {
-                    color =  "bg-rose-500"
-                    text = "The player was " + game.solution.name
-                }
-                document.getElementById("picbox").innerHTML += `<div class="animate-pulse fixed z-20 top-14 left-1/2 transform -translate-x-1/2 max-w-sm shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 overflow-hidden ${color} text-white"><div class="p-4"><p class="text-sm text-center font-medium">${text}</p></div></div>`
-                resolve();
-            }, "2000")
-        })
-    }
-    
-    function showStats(timeout) {
-        return new Promise( (resolve, reject) =>  {
-            setTimeout(() => {
-                document.body.appendChild(stringToHTML(headless(stats())));
-                document.getElementById("showHide").onclick = toggle;
-                bindClose();
-                resolve();
-            }, timeout)
-        })
-    }
-
-     function bindClose() {
-        document.getElementById("closedialog").onclick = function () {
-            document.body.removeChild(document.body.lastChild)
-            document.getElementById("mistery").classList.remove("hue-rotate-180", "blur")
-        }
-    }
 
     function setContent(guess) {
 
@@ -152,16 +107,7 @@ let setupRows = function (game) {
         let playersNode = document.getElementById('players')
         playersNode.prepend(stringToHTML(child))
     }
-    function resetInput(){
-        const input = document.getElementById("myInput");
-        input.value = "";
-        const unekoSaiakera = game.guesses.length + 1;
-        if (unekoSaiakera < 9){
-            input.placeholder = `Guess ${unekoSaiakera} of 8`;
-        }
 
-    }
-    
     let getPlayer = function (playerId) {
     
     const player = game.players.find(p => p.id === playerId);
@@ -174,33 +120,6 @@ let setupRows = function (game) {
     return player;
 };
 
-    function gameEnded(lastGuess){
-        if (lastGuess == game.solution.id){
-            return true;
-        }
-        if (game.guesses.length >= 8){
-            return true;
-        }
-        return false;
-    }
-
-    let gameFinished = false; // global dentro de setupRows
-
-    function success() {
-        if (gameFinished) return;
-        gameFinished = true;
-        unblur('success');
-        showStats();
-    }
-
-    function gameOver() {
-        if (gameFinished) return;
-        gameFinished = true;
-        unblur('gameover');
-        showStats();
-    }
-
-    resetInput();
 
     return /* addRow */ function (playerId) {
 
@@ -208,49 +127,8 @@ let setupRows = function (game) {
         console.log(guess)
 
         let content = setContent(guess)
-        game.guesses.push(playerId)
-        updateState(playerId)
-
-        resetInput();
-
-       if (playerId == game.solution.id) {
-        updateStats(game.guesses.length); // 1–8
-        success();
-        } 
-        else if (game.guesses.length === 8) {
-            updateStats(9); // fallo
-            gameOver();
-        }
-
-
-    let interval = setInterval(() => {
-        const nextPlayerDiv = document.getElementById("nextPlayer");
-        if (!nextPlayerDiv) return;
-        
-        const now = new Date();
-        const tomorrow = new Date();
-        tomorrow.setHours(24, 0, 0, 0);   
-
-        const diff = tomorrow - now;
-
-        const hours = Math.floor(diff / (1000 * 60 * 60));
-        const minutes = Math.floor((diff / (1000 * 60)) % 60);
-        const seconds = Math.floor((diff / 1000) % 60);
-
-    
-        nextPlayerDiv.textContent =`${hours}h ${minutes}m ${seconds}s`;
-
-    
-        if (diff <= 0) {
-            clearInterval(interval);
-        }
-
-        }, 1000);
-
-
         showContent(content, guess)
     }
 }
-
 
 export {setupRows}
