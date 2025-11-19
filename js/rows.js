@@ -1,6 +1,9 @@
 // YOUR CODE HERE :  
 // .... stringToHTML ....
 // .... setupRows .....
+// .... initState ....
+
+import { initState } from "./stats.js";
 
 const delay = 350;
 const attribs = ['nationality', 'leagueId', 'teamId', 'position', 'birthdate']
@@ -10,7 +13,8 @@ import { higher, lower } from "./fragments.js"
 
 let setupRows = function (game) {
 
-
+    let [state, updateState] = initState('WAYgameState', game.solution.id);
+    
     function leagueToFlag(leagueId) {
       const leagueMap = {
         564: "es1",
@@ -62,6 +66,25 @@ let setupRows = function (game) {
       return "incorrect";
     };
 
+    function unblur(outcome) {
+        return new Promise( (resolve, reject) =>  {
+            setTimeout(() => {
+                document.getElementById("mistery").classList.remove("hue-rotate-180", "blur")
+                document.getElementById("combobox").remove()
+                let color, text
+                if (outcome=='success'){
+                    color =  "bg-blue-500"
+                    text = "Awesome"
+                } else {
+                    color =  "bg-rose-500"
+                    text = "The player was " + game.solution.name
+                }
+                document.getElementById("picbox").innerHTML += `<div class="animate-pulse fixed z-20 top-14 left-1/2 transform -translate-x-1/2 max-w-sm shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 overflow-hidden ${color} text-white"><div class="p-4"><p class="text-sm text-center font-medium">${text}</p></div></div>`
+                resolve();
+            }, "2000")
+        })
+    }
+
 
     function setContent(guess) {
 
@@ -107,7 +130,16 @@ let setupRows = function (game) {
         let playersNode = document.getElementById('players')
         playersNode.prepend(stringToHTML(child))
     }
+    function resetInput(){
+        const input = document.getElementById("myInput");
+        input.value = "";
+        const unekoSaiakera = game.guesses.length + 1;
+        if (unekoSaiakera < 9){
+            input.placeholder = `Guess ${unekoSaiakera} of 8`;
+        }
 
+    }
+    
     let getPlayer = function (playerId) {
     
     const player = game.players.find(p => p.id === playerId);
@@ -120,6 +152,24 @@ let setupRows = function (game) {
     return player;
 };
 
+    function gameEnded(lastGuess){
+        if (lastGuess == game.solution.id){
+            return true;
+        }
+        if (game.guesses.length >= 8){
+            return true;
+        }
+        return false;
+    }
+        function success(){
+        unblur('success');
+    }
+
+    function gameOver(){
+        unblur('gameover');
+    }
+
+    resetInput();
 
     return /* addRow */ function (playerId) {
 
@@ -127,6 +177,21 @@ let setupRows = function (game) {
         console.log(guess)
 
         let content = setContent(guess)
+        game.guesses.push(playerId)
+        updateState(playerId)
+
+        resetInput();
+
+        if (gameEnded(playerId)) {
+            if (playerId == game.solution.id) {
+                success();
+            }
+            if (game.guesses.length == 8) {
+                gameOver();
+            }
+         }
+
+
         showContent(content, guess)
     }
 }
