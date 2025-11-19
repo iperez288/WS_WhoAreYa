@@ -37,7 +37,7 @@ let getStats = function(what) {
     else{
         const hasStats =
         {
-        winDistributions: [0,0,0,0,0,0,0],
+        winDistributions: [0,0,0,0,0,0,0,0,0],
         gamesFailed: 0,
         currentStreak: 0,
         bestStreak: 0,
@@ -55,8 +55,8 @@ let getStats = function(what) {
 
 function updateStats(t){
     gamestats.totalGames++;
-
-    if (t <= 8){
+    console.log("us: " + t)
+    if (t <= 8) {
         gamestats.winDistributions[t]++;
         gamestats.currentStreak++;
         if (gamestats.currentStreak > gamestats.bestStreak) {
@@ -70,7 +70,6 @@ function updateStats(t){
     successRate(gamestats);
 
     localStorage.setItem('gameStats', JSON.stringify(gamestats));
-
     return gamestats;
 };
 

@@ -213,42 +213,44 @@ let setupRows = function (game) {
 
         resetInput();
 
-        if (gameEnded(playerId)) {
-            updateStats(game.guesses.length);
-            if (playerId == game.solution.id) {
-                success();
-            }
-            if (game.guesses.length == 8) {
-                gameOver();
-            }
-         }
-        let interval = setInterval(() => {
-            const nextPlayerDiv = document.getElementById("nextPlayer");
-            if (!nextPlayerDiv) return;
+       if (playerId == game.solution.id) {
+        updateStats(game.guesses.length); // 1–8
+        success();
+        } 
+        else if (game.guesses.length === 8) {
+            updateStats(9); // fallo
+            gameOver();
+        }
+
+
+    let interval = setInterval(() => {
+        const nextPlayerDiv = document.getElementById("nextPlayer");
+        if (!nextPlayerDiv) return;
         
-            const now = new Date();
-            const tomorrow = new Date();
-            tomorrow.setHours(24, 0, 0, 0);   
+        const now = new Date();
+        const tomorrow = new Date();
+        tomorrow.setHours(24, 0, 0, 0);   
 
-            const diff = tomorrow - now;
+        const diff = tomorrow - now;
 
-            const hours = Math.floor(diff / (1000 * 60 * 60));
-            const minutes = Math.floor((diff / (1000 * 60)) % 60);
-            const seconds = Math.floor((diff / 1000) % 60);
-
-    
-            nextPlayerDiv.textContent =`${hours}h ${minutes}m ${seconds}s`;
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff / (1000 * 60)) % 60);
+        const seconds = Math.floor((diff / 1000) % 60);
 
     
-            if (diff <= 0) {
-                clearInterval(interval);
-            }
+        nextPlayerDiv.textContent =`${hours}h ${minutes}m ${seconds}s`;
 
-            }, 1000);
+    
+        if (diff <= 0) {
+            clearInterval(interval);
+        }
+
+        }, 1000);
 
 
         showContent(content, guess)
     }
 }
+
 
 export {setupRows}
