@@ -1,7 +1,8 @@
 import { stringToHTML, higher, lower, headless, stats, toggle } from "./fragments.js";
 import { updateStats } from "./stats.js";
 
-const attribs = ['nationality', 'leagueId', 'teamId', 'position', 'birthdate'];
+const attribs = ['nationality', 'leagueId', 'teamId', 'position', 'birthdate', 'number'];
+const attribsNames = ['NAT', 'LGE', 'TEAM', 'POS', 'AGE', 'NUM'];
 const delay = 350;
 
 // Hasieratu edo berreskuratu jokoaren egoera
@@ -65,6 +66,11 @@ let setupRows = function (game) {
       if (guessAge < mysteryAge) return "lower";
       return "higher";
     }
+    else if (key === "number") {
+    if (value === mystery.number) return "correct";
+    if (value < mystery.number) return "lower";
+    return "higher";
+  }
     return mystery[key] === value ? "correct" : "incorrect";
   };
 
@@ -92,43 +98,65 @@ let setupRows = function (game) {
 
   //Hemen errenkada baten edukia erakusten da
   function showContent(content, guess) {
-    let fragments = '', s = '';
-    for (let j = 0; j < content.length; j++) {
-      s = "".concat(((j + 1) * delay).toString(), "ms");
-      fragments += `<div class="w-1/5 shrink-0 flex justify-center ">
-                      <div class="mx-1 overflow-hidden w-full max-w-2 shadowed font-bold text-xl flex aspect-square rounded-full justify-center items-center bg-slate-400 text-white ${check(attribs[j], guess[attribs[j]]) == 'correct' ? 'bg-green-500' : ''} opacity-0 fadeInDown" style="max-width: 60px; animation-delay: ${s};">
-                        ${content[j]}
-                      </div>
-                    </div>`;
-    }
+  let fragments = '', s = '';
 
-    let child = `<div class="flex w-full flex-wrap text-l py-2">
-                    <div class=" w-full grow text-center pb-2">
-                      <div class="mx-1 overflow-hidden h-full flex items-center justify-center sm:text-right px-4 uppercase font-bold text-lg opacity-0 fadeInDown " style="animation-delay: 0ms;">
-                        ${guess.name}
-                      </div>
-                    </div>
-                    ${fragments}</div>`;
+  for (let j = 0; j < content.length; j++) {
+    s = "".concat(((j + 1) * delay).toString(), "ms");
 
-    document.getElementById('players').prepend(stringToHTML(child));
+    fragments += `
+      <div class="w-1/5 shrink-0 flex flex-col items-center">
+        <div class="mx-1 overflow-hidden w-full max-w-2 shadowed font-bold text-xl flex aspect-square rounded-full justify-center items-center
+                    bg-slate-400 text-white ${check(attribs[j], guess[attribs[j]]) === 'correct' ? 'bg-green-500' : ''} 
+                    opacity-0 fadeInDown"
+             style="max-width: 60px; animation-delay: ${s};">
+          ${content[j]}
+        </div>
+        <div class="mt-1 text-sm font-bold text-center opacity-0 fadeInDown" style="animation-delay: ${s};">
+          ${attribsNames[j]}  <!-- Aquí puedes poner el nombre que quieras debajo de cada burbuja -->
+        </div>
+      </div>
+    `;
   }
+
+  let child = `
+    <div class="flex w-full flex-wrap text-l py-2">
+      <div class="w-full grow text-center pb-2">
+        <div class="mx-1 overflow-hidden h-full flex items-center justify-center sm:text-right px-4 uppercase font-bold text-lg opacity-0 fadeInDown"
+             style="animation-delay: 0ms;">
+          ${guess.name}
+        </div>
+      </div>
+      ${fragments}
+    </div>
+  `;
+
+  document.getElementById('players').prepend(stringToHTML(child));
+}
 
 
   // Edukia prestatu errenkada baterako
   function setContent(guess) {
-    const ageCheck = check("birthdate", guess.birthdate);
-    let ageDisplay = `${getAge(guess.birthdate)}`;
-    if (ageCheck === "lower") ageDisplay += ` ${higher}`;
-    else if (ageCheck === "higher") ageDisplay += ` ${lower}`;
+  // Adinarentzako
+  const ageCheck = check("birthdate", guess.birthdate);
+  let ageDisplay = `${getAge(guess.birthdate)}`;
+  if (ageCheck === "lower") ageDisplay += ` ${higher}`;
+  else if (ageCheck === "higher") ageDisplay += ` ${lower}`;
 
-    return [
-      `<img src="https://playfootball.games/media/nations/${guess.nationality.toLowerCase()}.svg" alt="" style="width: 60%;">`,
-      `<img src="https://playfootball.games/media/competitions/${leagueToFlag(guess.leagueId)}.png" alt="" style="width: 60%;">`,
-      `<img src="https://cdn.sportmonks.com/images/soccer/teams/${guess.teamId % 32}/${guess.teamId}.png" alt="" style="width: 60%;">`,
-      `${guess.position}`,
-      `${ageDisplay}`
-    ];
-  }
+  // Kamiseta zenbakiarentzako
+  const shirtCheck = check("number", guess.number);
+  let shirtDisplay = `${guess.number}`;
+  if (shirtCheck === "lower") shirtDisplay += ` ${higher}`;
+  else if (shirtCheck === "higher") shirtDisplay += ` ${lower}`;
+
+  return [
+    `<img src="https://playfootball.games/media/nations/${guess.nationality.toLowerCase()}.svg" alt="" style="width: 60%;">`,
+    `<img src="https://playfootball.games/media/competitions/${leagueToFlag(guess.leagueId)}.png" alt="" style="width: 60%;">`,
+    `<img src="https://cdn.sportmonks.com/images/soccer/teams/${guess.teamId % 32}/${guess.teamId}.png" alt="" style="width: 60%;">`,
+    `${guess.position}`,
+    `${ageDisplay}`,
+    `${'#' + shirtDisplay}`
+  ];
+}
 
 
   // Estatistikak erakutsi
