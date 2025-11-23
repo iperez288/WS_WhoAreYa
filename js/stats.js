@@ -39,7 +39,6 @@ export function updateStats(t){
         gamestats.gamesFailed++;
     }
     successRate(gamestats);
-
     localStorage.setItem('gameStats', JSON.stringify(gamestats));
     return gamestats;
 }

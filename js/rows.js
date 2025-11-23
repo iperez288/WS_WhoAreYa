@@ -192,7 +192,7 @@ let setupRows = function (game) {
         }
         gameOver();
     }
-}
+  };
 
 };
 

@@ -26,10 +26,8 @@ function autocomplete(inp, game) {
         b = document.createElement("DIV");
         b.classList.add("flex", "items-start", "gap-x-3", "leading-tight", "uppercase", "text-sm");
 
-        // Imagen del equipo
         b.innerHTML = `<img src="https://cdn.sportmonks.com/images/soccer/teams/${players[i].teamId % 32}/${players[i].teamId}.png" width="28" height="28">`;
 
-        // Partes del nombre resaltadas
         const parts = parse(players[i].name, matchResult);
         b.innerHTML += `<div class='self-center'>` +
           parts.map(p => p.highlight ? `<span class='font-bold'>${p.text}</span>` : `<span>${p.text}</span>`).join('') +
@@ -37,13 +35,12 @@ function autocomplete(inp, game) {
            <input type='hidden' name='id' value='${players[i].id}'>
         </div>`;
 
-        // Evento click para seleccionar jugador
         b.addEventListener("click", function () {
           inp.value = this.querySelector("input[name='name']").value;
           closeAllLists();
           const selectedPlayer = players.find(p => p.name === inp.value);
           addRow(selectedPlayer.id);
-          inp.value = ''; // limpiar input
+          inp.value = '';
         });
 
         a.appendChild(b);

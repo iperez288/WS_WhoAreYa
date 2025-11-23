@@ -52,6 +52,7 @@ resetIfNewDay();
 
 
 Promise.all([fetchJSON("fullplayers25"), fetchJSON("solution25")]).then((values) => {
+
   let solution;
   [game.players, solution] = values;
 

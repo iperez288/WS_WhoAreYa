@@ -1,3 +1,4 @@
+
 async function fetchJSON(what) {
     try {
         const response = await fetch(`./json/${what}.json`);
