@@ -4,7 +4,7 @@ import { updateStats } from "./stats.js";
 const attribs = ['nationality', 'leagueId', 'teamId', 'position', 'birthdate'];
 const delay = 350;
 
-
+// Hasieratu edo berreskuratu jokoaren egoera
 export function initState(what, solutionId) { 
     const saved = localStorage.getItem(what);
     let state;
@@ -29,10 +29,13 @@ export function initState(what, solutionId) {
     return [state, addGuess];
 }
 
-
+// Jokoaren errenkadak kudeatzeko funtzioa
 let setupRows = function (game) {
+  //Hemen egikaritu hasierako egoera
   let [state, updateState] = initState('WAYgameState', game.solution.id);
+  let gameFinished = false;
 
+  // Jarraian funtzio laguntzaile batzuk
   function leagueToFlag(leagueId) {
     const leagueMap = {
       564: "es1",
@@ -52,6 +55,7 @@ let setupRows = function (game) {
     return age;
   }
 
+  
   let check = function (key, value) {
     const mystery = game.solution;
     if (key === "birthdate") {
@@ -63,6 +67,7 @@ let setupRows = function (game) {
     }
     return mystery[key] === value ? "correct" : "incorrect";
   };
+
 
   function unblur(outcome) {
     return new Promise(resolve => {
@@ -84,6 +89,8 @@ let setupRows = function (game) {
     });
   }
 
+
+  //Hemen errenkada baten edukia erakusten da
   function showContent(content, guess) {
     let fragments = '', s = '';
     for (let j = 0; j < content.length; j++) {
@@ -106,6 +113,8 @@ let setupRows = function (game) {
     document.getElementById('players').prepend(stringToHTML(child));
   }
 
+
+  // Edukia prestatu errenkada baterako
   function setContent(guess) {
     const ageCheck = check("birthdate", guess.birthdate);
     let ageDisplay = `${getAge(guess.birthdate)}`;
@@ -121,33 +130,8 @@ let setupRows = function (game) {
     ];
   }
 
-  function resetInput() {
-    const input = document.getElementById("myInput");
-    input.value = "";
-    const attempt = game.guesses.length + 1;
-    if (attempt < 9) input.placeholder = `Guess ${attempt} of 8`;
-  }
 
-  function getPlayer(playerId) {
-    return game.players.find(p => p.id === playerId) || null;
-  }
-
-  let gameFinished = false;
-
-  function success() {
-    if (gameFinished) return;
-    gameFinished = true;
-    unblur('success');
-    showStats();
-  }
-
-  function gameOver() {
-    if (gameFinished) return;
-    gameFinished = true;
-    unblur('gameover');
-    showStats();
-  }
-
+  // Estatistikak erakutsi
   function showStats(timeout = 0) {
     return new Promise(resolve => {
       setTimeout(() => {
@@ -162,14 +146,49 @@ let setupRows = function (game) {
     });
   }
 
-  resetInput();
 
+  // Input-a berrezarri
+  function resetInput() {
+    const input = document.getElementById("myInput");
+    input.value = "";
+    const attempt = game.guesses.length + 1;
+    if (attempt < 9) input.placeholder = `Guess ${attempt} of 8`;
+  }
+
+
+  // Jokoko jokalari bat ID bidez lortu
+  function getPlayer(playerId) {
+    return game.players.find(p => p.id === playerId) || null;
+  }
+
+  
+  // Jokoaren amaiera kudeatu, jokalaria asmatu bada
+  function success() {
+    if (gameFinished) return;
+    gameFinished = true;
+    unblur('success');
+    showStats();
+  }
+
+
+
+  // Jokoaren amaiera kudeatu, jokalaria EZ bada asmatu
+  function gameOver() {
+    if (gameFinished) return;
+    gameFinished = true;
+    unblur('gameover');
+    showStats();
+  }
+
+
+  // Errenkada bat gehitzeko funtzioa
   return function addRow(playerId, restore = false) {
     const guess = getPlayer(playerId);
     if (!guess) return;
 
     const content = setContent(guess);
 
+    //portaera desberdinak web orria freskatzen bada edo ez (freskatzen bada ez du egoera aldatu behar, bakarrik aurrekora itzuli)
     if (!restore) {
         game.guesses.push(playerId);
         updateState(playerId);
@@ -177,9 +196,11 @@ let setupRows = function (game) {
         game.guesses.push(playerId);
     }
 
+    //uneko egoeraren arabera kargatu interfazea (lerro guztiak)
     resetInput();
     showContent(content, guess);
 
+    //jokoaren amaiera kudeatu
     if(playerId == game.solution.id) {
         if(!restore) {
             updateStats(game.guesses.length);

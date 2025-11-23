@@ -3,6 +3,7 @@ import { fetchJSON } from "./loaders.js";
 import { setupRows, initState } from "./rows.js";
 import { autocomplete } from "./autocomplete.js";
 
+// Kalkulatu bi data tartean dauden egun kopurua
 function differenceInDays(date1) {
   const MS_PER_DAY = 1000 * 60 * 60 * 24;
   const today = new Date();
@@ -12,6 +13,7 @@ function differenceInDays(date1) {
 
 let difference_In_Days = differenceInDays(new Date("01-10-2025"));
 
+// Jokoaren datu egitura
 let game = {
   guesses: [],
   solution: {},
@@ -19,6 +21,7 @@ let game = {
   leagues: []
 };
 
+// Jokoaren soluzioa lortu
 function getSolution(players, solutionArray, difference_In_Days) {
   let solutionId;
   let solutionPlayer;
@@ -38,7 +41,7 @@ function getSolution(players, solutionArray, difference_In_Days) {
 document.getElementById("gamenumber").innerText = difference_In_Days.toString();
 document.getElementById("back-icon").innerHTML = folder + leftArrow;
 
-
+//Egun berri bat bada, localStorage garbitu, saiakera berria egiten uzteko.
 function resetIfNewDay() {
     const today = new Date().toDateString();
     const savedDay = localStorage.getItem("WAY_lastDay");
@@ -51,6 +54,7 @@ function resetIfNewDay() {
 resetIfNewDay();
 
 
+// Jokoaren datuak kargatu eta hasieratu
 Promise.all([fetchJSON("fullplayers25"), fetchJSON("solution25")]).then((values) => {
 
   let solution;
@@ -62,6 +66,7 @@ Promise.all([fetchJSON("fullplayers25"), fetchJSON("solution25")]).then((values)
 
   const addRow = setupRows(game);
 
+  //Aurreko saioetako datuak berreskuratu eta erakutsi
   let [state, _] = initState('WAYgameState', game.solution.id);
   state.guesses.forEach(playerId => addRow(playerId, true));
 

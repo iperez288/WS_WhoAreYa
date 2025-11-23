@@ -1,5 +1,6 @@
 let gamestats = getStats('gameStats');
 
+// Saiakeraren estatistikak lortzeko eta hasieratzeko funtzioa
 export function getStats(what) {
     const existitu = localStorage.getItem(what);
     if(existitu){
@@ -19,12 +20,14 @@ export function getStats(what) {
     }
 }
 
+// Arrakasta tasa kalkulatzeko funtzioa
 function successRate (e){
     const totalWins = gamestats.winDistributions.reduce((acc, win) => acc + win, 0);
     e.successRate = Math.round((totalWins / gamestats.totalGames) * 100);
     return e.successRate;
 }
 
+// Jokoaren estatistikak eguneratzeko funtzioa
 export function updateStats(t){
     gamestats.totalGames++;
     if (t <= 8) {
