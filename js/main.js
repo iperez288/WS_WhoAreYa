@@ -1,22 +1,16 @@
 import { folder, leftArrow } from "./fragments.js";
 import { fetchJSON } from "./loaders.js";
-import { setupRows } from "./rows.js";
+import { setupRows, initState } from "./rows.js";
 import { autocomplete } from "./autocomplete.js";
 
 function differenceInDays(date1) {
   const MS_PER_DAY = 1000 * 60 * 60 * 24;
   const today = new Date();
   const date2 = new Date(date1.getFullYear(), date1.getMonth(), date1.getDate());
-  const days = Math.floor((today - date2) / MS_PER_DAY);
-  return days;
+  return Math.floor((today - date2) / MS_PER_DAY);
 }
 
 let difference_In_Days = differenceInDays(new Date("01-10-2025"));
- 
-window.onload = function () {
-  document.getElementById("gamenumber").innerText = difference_In_Days.toString();
-  document.getElementById("back-icon").innerHTML = folder + leftArrow;
-};
 
 let game = {
   guesses: [],
@@ -40,25 +34,26 @@ function getSolution(players, solutionArray, difference_In_Days) {
   return solutionPlayer;
 }
 
-Promise.all([fetchJSON("fullplayers25"), fetchJSON("solution25")]).then(
-  (values) => {
+// -----------------------------------
+// Inicialización de la partida
+// -----------------------------------
+document.getElementById("gamenumber").innerText = difference_In_Days.toString();
+document.getElementById("back-icon").innerHTML = folder + leftArrow;
 
-    let solution;
-    
-    [game.players, solution] = values;
+Promise.all([fetchJSON("fullplayers25"), fetchJSON("solution25")]).then((values) => {
+  let solution;
+  [game.players, solution] = values;
 
-    game.solution = getSolution(game.players, solution, difference_In_Days);
-    
-    console.log(game.solution);
+  game.solution = getSolution(game.players, solution, difference_In_Days);
 
-    document.getElementById("mistery").src = `https://playfootball.games/media/players/${game.solution.id % 32}/${game.solution.id}.png`;
-    
-    const addRow = setupRows(game);
+  document.getElementById("mistery").src = `https://playfootball.games/media/players/${game.solution.id % 32}/${game.solution.id}.png`;
 
-    // Input elementua lortu
-    //const myInput = document.getElementById("myInput");
+  const addRow = setupRows(game);
 
-    //horren ordez, autocomplete funtzioari deituko diogu (bertan egiten da addRow deia)
-    autocomplete(document.getElementById("myInput"), game);
-  }
-);
+  // Recupera intentos previos desde localStorage y los muestra
+  let [state, _] = initState('WAYgameState', game.solution.id);
+  state.guesses.forEach(playerId => addRow(playerId, true));
+
+  // Inicializa autocomplete (dentro de autocomplete se llamará a addRow)
+  autocomplete(document.getElementById("myInput"), game);
+});

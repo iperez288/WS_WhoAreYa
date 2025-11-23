@@ -1,256 +1,202 @@
-// YOUR CODE HERE :  
-// .... stringToHTML ....
-// .... setupRows .....
-// .... initState ....
-
-import { initState } from "./stats.js";
-import { stats } from "./fragments.js";
+import { stringToHTML, higher, lower, headless, stats, toggle } from "./fragments.js";
 import { updateStats } from "./stats.js";
-import { toggle } from "./fragments.js";
-import { headless } from "./fragments.js";
 
+const attribs = ['nationality', 'leagueId', 'teamId', 'position', 'birthdate'];
 const delay = 350;
-const attribs = ['nationality', 'leagueId', 'teamId', 'position', 'birthdate']
-import { stringToHTML } from "./fragments.js";
-import { higher, lower } from "./fragments.js"
 
 
-let setupRows = function (game) {
+export function initState(what, solutionId) { 
+    const saved = localStorage.getItem(what);
+    let state;
 
-    let [state, updateState] = initState('WAYgameState', game.solution.id);
-    
-    function leagueToFlag(leagueId) {
-      const leagueMap = {
-        564: "es1",
-        8: "en1",
-        82: "de1",
-        384: "it1",
-        301: "fr1",
-      };
+    if (saved) {
+        state = JSON.parse(saved);
 
-      return leagueMap[leagueId] || "";
-    }
-
-
-
-    function getAge(dateString) {
-      const gaur = new Date();
-      const jaiotzeData = new Date(dateString);
-      let age = gaur.getFullYear() - jaiotzeData.getFullYear();
-
-      const urteakBeteAurten =
-        gaur.getMonth() > jaiotzeData.getMonth() ||
-        (gaur.getMonth() === jaiotzeData.getMonth() &&
-          gaur.getDate() >= jaiotzeData.getDate());
-
-      if (!urteakBeteAurten) {
-        age--;
-      }
-
-      return age;
-    }
-
-    
-    let check = function (theKey, theValue) {
-      const mystery = game.solution;
-
-      if (theKey === "birthdate") {
-        const guessAge = getAge(theValue);
-        const mysteryAge = getAge(mystery.birthdate);
-
-        if (guessAge === mysteryAge) return "correct";
-        if (guessAge < mysteryAge) return "lower";
-        return "higher";
-      }
-
-      if (mystery.hasOwnProperty(theKey)) {
-        return mystery[theKey] === theValue ? "correct" : "incorrect";
-      }
-
-      return "incorrect";
-    };
-
-    function unblur(outcome) {
-        return new Promise( (resolve, reject) =>  {
-            setTimeout(() => {
-                document.getElementById("mistery").classList.remove("hue-rotate-180", "blur")
-                const combo = document.getElementById("combobox");
-                if (combo) combo.remove();
-                let color, text
-                if (outcome=='success'){
-                    color =  "bg-blue-500"
-                    text = "Awesome"
-                } else {
-                    color =  "bg-rose-500"
-                    text = "The player was " + game.solution.name
-                }
-                document.getElementById("picbox").innerHTML += `<div class="animate-pulse fixed z-20 top-14 left-1/2 transform -translate-x-1/2 max-w-sm shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 overflow-hidden ${color} text-white"><div class="p-4"><p class="text-sm text-center font-medium">${text}</p></div></div>`
-                resolve();
-            }, "2000")
-        })
-    }
-    
-    function showStats(timeout) {
-        return new Promise( (resolve, reject) =>  {
-            setTimeout(() => {
-                document.body.appendChild(stringToHTML(headless(stats())));
-                document.getElementById("showHide").onclick = toggle;
-                bindClose();
-                resolve();
-            }, timeout)
-        })
-    }
-
-     function bindClose() {
-        document.getElementById("closedialog").onclick = function () {
-            document.body.removeChild(document.body.lastChild)
-            document.getElementById("mistery").classList.remove("hue-rotate-180", "blur")
+        // Si cambió la solución (nuevo día), reiniciamos
+        if (state.solutionId !== solutionId) {
+            state = { solutionId: solutionId, guesses: [] };
+            localStorage.setItem(what, JSON.stringify(state));
         }
+    } else {
+        state = { solutionId: solutionId, guesses: [] };
+        localStorage.setItem(what, JSON.stringify(state));
     }
 
-    function setContent(guess) {
-
-      const ageCheck = check("birthdate", guess.birthdate);
-
-      // Por defecto mostramos solo el número
-      let ageDisplay = `${getAge(guess.birthdate)}`;
-      
-      if (ageCheck === "lower") {
-        ageDisplay += ` ${higher}`
-      } else if (ageCheck === "higher") {
-        ageDisplay += ` ${lower}`
-      }
-
-      return [
-          `<img src="https://playfootball.games/media/nations/${guess.nationality.toLowerCase()}.svg" alt="" style="width: 60%;">`,
-          `<img src="https://playfootball.games/media/competitions/${leagueToFlag(guess.leagueId)}.png" alt="" style="width: 60%;">`,
-          `<img src="https://cdn.sportmonks.com/images/soccer/teams/${guess.teamId % 32}/${guess.teamId}.png" alt="" style="width: 60%;">`,
-          `${guess.position}`,
-          `${ageDisplay}`
-        ]
+    const addGuess = (guess) => {
+        state.guesses.push(guess);
+        localStorage.setItem(what, JSON.stringify(state));
     }
 
-    function showContent(content, guess) {
-        let fragments = '', s = '';
-        for (let j = 0; j < content.length; j++) {
-            s = "".concat(((j + 1) * delay).toString(), "ms")
-            fragments += `<div class="w-1/5 shrink-0 flex justify-center ">
-                            <div class="mx-1 overflow-hidden w-full max-w-2 shadowed font-bold text-xl flex aspect-square rounded-full justify-center items-center bg-slate-400 text-white ${check(attribs[j], guess[attribs[j]]) == 'correct' ? 'bg-green-500' : ''} opacity-0 fadeInDown" style="max-width: 60px; animation-delay: ${s};">
-                                ${content[j]}
-                            </div>
-                         </div>`
-        }
-
-        let child = `<div class="flex w-full flex-wrap text-l py-2">
-                        <div class=" w-full grow text-center pb-2">
-                            <div class="mx-1 overflow-hidden h-full flex items-center justify-center sm:text-right px-4 uppercase font-bold text-lg opacity-0 fadeInDown " style="animation-delay: 0ms;">
-                                ${guess.name}
-                            </div>
-                        </div>
-                        ${fragments}`
-
-        let playersNode = document.getElementById('players')
-        playersNode.prepend(stringToHTML(child))
-    }
-    function resetInput(){
-        const input = document.getElementById("myInput");
-        input.value = "";
-        const unekoSaiakera = game.guesses.length + 1;
-        if (unekoSaiakera < 9){
-            input.placeholder = `Guess ${unekoSaiakera} of 8`;
-        }
-
-    }
-    
-    let getPlayer = function (playerId) {
-    
-    const player = game.players.find(p => p.id === playerId);
-
-    if (!player) {
-        console.error(`Ez da jokalaria aurkitu ID honekin: ${playerId}`);
-        return null;
-    }
-
-    return player;
-};
-
-    function gameEnded(lastGuess){
-        if (lastGuess == game.solution.id){
-            return true;
-        }
-        if (game.guesses.length >= 8){
-            return true;
-        }
-        return false;
-    }
-
-    let gameFinished = false; // global dentro de setupRows
-
-    function success() {
-        if (gameFinished) return;
-        gameFinished = true;
-        unblur('success');
-        showStats();
-    }
-
-    function gameOver() {
-        if (gameFinished) return;
-        gameFinished = true;
-        unblur('gameover');
-        showStats();
-    }
-
-    resetInput();
-
-    return /* addRow */ function (playerId) {
-
-        let guess = getPlayer(playerId)
-        console.log(guess)
-
-        let content = setContent(guess)
-        game.guesses.push(playerId)
-        updateState(playerId)
-
-        resetInput();
-
-       if (playerId == game.solution.id) {
-        updateStats(game.guesses.length); // 1–8
-        success();
-        } 
-        else if (game.guesses.length === 8) {
-            updateStats(9); // fallo
-            gameOver();
-        }
-
-
-    let interval = setInterval(() => {
-        const nextPlayerDiv = document.getElementById("nextPlayer");
-        if (!nextPlayerDiv) return;
-        
-        const now = new Date();
-        const tomorrow = new Date();
-        tomorrow.setHours(24, 0, 0, 0);   
-
-        const diff = tomorrow - now;
-
-        const hours = Math.floor(diff / (1000 * 60 * 60));
-        const minutes = Math.floor((diff / (1000 * 60)) % 60);
-        const seconds = Math.floor((diff / 1000) % 60);
-
-    
-        nextPlayerDiv.textContent =`${hours}h ${minutes}m ${seconds}s`;
-
-    
-        if (diff <= 0) {
-            clearInterval(interval);
-        }
-
-        }, 1000);
-
-
-        showContent(content, guess)
-    }
+    return [state, addGuess];
 }
 
 
-export {setupRows}
+let setupRows = function (game) {
+  let [state, updateState] = initState('WAYgameState', game.solution.id);
+
+  function leagueToFlag(leagueId) {
+    const leagueMap = {
+      564: "es1",
+      8: "en1",
+      82: "de1",
+      384: "it1",
+      301: "fr1",
+    };
+    return leagueMap[leagueId] || "";
+  }
+
+  function getAge(dateString) {
+    const today = new Date();
+    const birth = new Date(dateString);
+    let age = today.getFullYear() - birth.getFullYear();
+    if (today.getMonth() < birth.getMonth() || (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())) age--;
+    return age;
+  }
+
+  let check = function (key, value) {
+    const mystery = game.solution;
+    if (key === "birthdate") {
+      const guessAge = getAge(value);
+      const mysteryAge = getAge(mystery.birthdate);
+      if (guessAge === mysteryAge) return "correct";
+      if (guessAge < mysteryAge) return "lower";
+      return "higher";
+    }
+    return mystery[key] === value ? "correct" : "incorrect";
+  };
+
+  function unblur(outcome) {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        document.getElementById("mistery").classList.remove("hue-rotate-180", "blur");
+        const combo = document.getElementById("combobox");
+        if (combo) combo.remove();
+        let color, text;
+        if (outcome === 'success') {
+          color = "bg-blue-500";
+          text = "Awesome";
+        } else {
+          color = "bg-rose-500";
+          text = "The player was " + game.solution.name;
+        }
+        document.getElementById("picbox").innerHTML += `<div class="animate-pulse fixed z-20 top-14 left-1/2 transform -translate-x-1/2 max-w-sm shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 overflow-hidden ${color} text-white"><div class="p-4"><p class="text-sm text-center font-medium">${text}</p></div></div>`;
+        resolve();
+      }, 2000);
+    });
+  }
+
+  function showContent(content, guess) {
+    let fragments = '', s = '';
+    for (let j = 0; j < content.length; j++) {
+      s = "".concat(((j + 1) * delay).toString(), "ms");
+      fragments += `<div class="w-1/5 shrink-0 flex justify-center ">
+                      <div class="mx-1 overflow-hidden w-full max-w-2 shadowed font-bold text-xl flex aspect-square rounded-full justify-center items-center bg-slate-400 text-white ${check(attribs[j], guess[attribs[j]]) == 'correct' ? 'bg-green-500' : ''} opacity-0 fadeInDown" style="max-width: 60px; animation-delay: ${s};">
+                        ${content[j]}
+                      </div>
+                    </div>`;
+    }
+
+    let child = `<div class="flex w-full flex-wrap text-l py-2">
+                    <div class=" w-full grow text-center pb-2">
+                      <div class="mx-1 overflow-hidden h-full flex items-center justify-center sm:text-right px-4 uppercase font-bold text-lg opacity-0 fadeInDown " style="animation-delay: 0ms;">
+                        ${guess.name}
+                      </div>
+                    </div>
+                    ${fragments}</div>`;
+
+    document.getElementById('players').prepend(stringToHTML(child));
+  }
+
+  function setContent(guess) {
+    const ageCheck = check("birthdate", guess.birthdate);
+    let ageDisplay = `${getAge(guess.birthdate)}`;
+    if (ageCheck === "lower") ageDisplay += ` ${higher}`;
+    else if (ageCheck === "higher") ageDisplay += ` ${lower}`;
+
+    return [
+      `<img src="https://playfootball.games/media/nations/${guess.nationality.toLowerCase()}.svg" alt="" style="width: 60%;">`,
+      `<img src="https://playfootball.games/media/competitions/${leagueToFlag(guess.leagueId)}.png" alt="" style="width: 60%;">`,
+      `<img src="https://cdn.sportmonks.com/images/soccer/teams/${guess.teamId % 32}/${guess.teamId}.png" alt="" style="width: 60%;">`,
+      `${guess.position}`,
+      `${ageDisplay}`
+    ];
+  }
+
+  function resetInput() {
+    const input = document.getElementById("myInput");
+    input.value = "";
+    const attempt = game.guesses.length + 1;
+    if (attempt < 9) input.placeholder = `Guess ${attempt} of 8`;
+  }
+
+  function getPlayer(playerId) {
+    return game.players.find(p => p.id === playerId) || null;
+  }
+
+  let gameFinished = false;
+
+  function success() {
+    if (gameFinished) return;
+    gameFinished = true;
+    unblur('success');
+    showStats();
+  }
+
+  function gameOver() {
+    if (gameFinished) return;
+    gameFinished = true;
+    unblur('gameover');
+    showStats();
+  }
+
+  function showStats(timeout = 0) {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        document.body.appendChild(stringToHTML(headless(stats())));
+        document.getElementById("showHide").onclick = toggle;
+        document.getElementById("closedialog").onclick = function () {
+          document.body.removeChild(document.body.lastChild);
+          document.getElementById("mistery").classList.remove("hue-rotate-180", "blur");
+        };
+        resolve();
+      }, timeout);
+    });
+  }
+
+  resetInput();
+
+  return function addRow(playerId, restore = false) {
+    const guess = getPlayer(playerId);
+    if (!guess) return;
+
+    const content = setContent(guess);
+
+    // Solo agregamos al estado y guardamos si no es restauración
+    if (!restore) {
+        game.guesses.push(playerId);
+        updateState(playerId);
+    } else {
+        // Si es restauración, solo agregamos al array interno
+        game.guesses.push(playerId);
+    }
+
+    resetInput();
+    showContent(content, guess);
+
+    if(playerId == game.solution.id) {
+        if(!restore) {
+            updateStats(game.guesses.length);
+        }
+        success();
+    }
+    else if(game.guesses.length === 8) {
+        if(!restore) {
+            updateStats(9);
+        }
+        gameOver();
+    }
+}
+
+};
+
+export { setupRows };
