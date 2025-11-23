@@ -210,38 +210,34 @@ let setupRows = function (game) {
 
 
   // Errenkada bat gehitzeko funtzioa
-  return function addRow(playerId, restore = false) {
-    const guess = getPlayer(playerId);
-    if (!guess) return;
+ const addRow = function(playerId, restore=false){
+        const guess = getPlayer(playerId);
+        if(!guess) return;
 
-    const content = setContent(guess);
+        const content = setContent(guess);
 
-    //portaera desberdinak web orria freskatzen bada edo ez (freskatzen bada ez du egoera aldatu behar, bakarrik aurrekora itzuli)
-    if (!restore) {
-        game.guesses.push(playerId);
-        updateState(playerId);
-    } else {
-        game.guesses.push(playerId);
-    }
+        if(!restore) {
+            game.guesses.push(playerId);
+            updateState(playerId);
+        } else {
+            game.guesses.push(playerId);
+        }
 
-    //uneko egoeraren arabera kargatu interfazea (lerro guztiak)
+        resetInput();
+        showContent(content, guess);
+
+        if(playerId==game.solution.id){
+            if(!restore) updateStats(game.guesses.length);
+            success();
+        } else if(game.guesses.length===8){
+            if(!restore) updateStats(9);
+            gameOver();
+        }
+    };
+
     resetInput();
-    showContent(content, guess);
 
-    //jokoaren amaiera kudeatu
-    if(playerId == game.solution.id) {
-        if(!restore) {
-            updateStats(game.guesses.length);
-        }
-        success();
-    }
-    else if(game.guesses.length === 8) {
-        if(!restore) {
-            updateStats(9);
-        }
-        gameOver();
-    }
-  };
+    return addRow;
 
 };
 
