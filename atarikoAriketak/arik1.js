@@ -13,4 +13,3 @@ fetch("http://api.football-data.org/v4/competitions", {
   });
 
 
-

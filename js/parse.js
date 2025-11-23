@@ -1,5 +1,5 @@
 export function parse(name, matchResult) {
-
+    
     if (!matchResult) return [{ text: name, highlight: false }];
     
     return [

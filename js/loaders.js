@@ -10,5 +10,4 @@ async function fetchJSON(what) {
     }
 }
 
-
 export { fetchJSON };
