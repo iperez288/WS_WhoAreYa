@@ -12,7 +12,6 @@ export function initState(what, solutionId) {
     if (saved) {
         state = JSON.parse(saved);
 
-        // Si cambió la solución (nuevo día), reiniciamos
         if (state.solutionId !== solutionId) {
             state = { solutionId: solutionId, guesses: [] };
             localStorage.setItem(what, JSON.stringify(state));
@@ -171,12 +170,10 @@ let setupRows = function (game) {
 
     const content = setContent(guess);
 
-    // Solo agregamos al estado y guardamos si no es restauración
     if (!restore) {
         game.guesses.push(playerId);
         updateState(playerId);
     } else {
-        // Si es restauración, solo agregamos al array interno
         game.guesses.push(playerId);
     }
 

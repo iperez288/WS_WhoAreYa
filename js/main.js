@@ -34,11 +34,22 @@ function getSolution(players, solutionArray, difference_In_Days) {
   return solutionPlayer;
 }
 
-// -----------------------------------
-// Inicialización de la partida
-// -----------------------------------
+
 document.getElementById("gamenumber").innerText = difference_In_Days.toString();
 document.getElementById("back-icon").innerHTML = folder + leftArrow;
+
+
+function resetIfNewDay() {
+    const today = new Date().toDateString();
+    const savedDay = localStorage.getItem("WAY_lastDay");
+
+    if (savedDay !== today) {
+        localStorage.clear();
+        localStorage.setItem("WAY_lastDay", today);
+    }
+}
+resetIfNewDay();
+
 
 Promise.all([fetchJSON("fullplayers25"), fetchJSON("solution25")]).then((values) => {
   let solution;
@@ -50,10 +61,8 @@ Promise.all([fetchJSON("fullplayers25"), fetchJSON("solution25")]).then((values)
 
   const addRow = setupRows(game);
 
-  // Recupera intentos previos desde localStorage y los muestra
   let [state, _] = initState('WAYgameState', game.solution.id);
   state.guesses.forEach(playerId => addRow(playerId, true));
 
-  // Inicializa autocomplete (dentro de autocomplete se llamará a addRow)
   autocomplete(document.getElementById("myInput"), game);
 });
